@@ -1,6 +1,6 @@
 require 'support/factory_girl'
 
-describe Product, :type => :model do
+RSpec.describe Product, type: :model do
 
   describe "all #attributes" do
     before :each do
@@ -12,11 +12,10 @@ describe Product, :type => :model do
     end
 
     it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:price) }
-    it { should validate_presence_of(:quantity_available) }
+    it { should validate_presence_of(:price) }  
 
     describe "SKU" do
-      subject { build(:product, :sku => "tst", :name => "test", :price => 100.00, :quantity_available => 10) }
+      subject { build(:product, :sku => "tst", :name => "test", :price => 100.00) }
 
       it { should validate_uniqueness_of(:sku) }
 
@@ -39,12 +38,6 @@ describe Product, :type => :model do
 
     it "should not be valid without price" do
       @product = build(:product, :price => "")
-
-      expect(@product).not_to be_valid
-    end
-
-    it "should not be valid without quantity available" do
-      @product = build(:product, :quantity_available => "")
 
       expect(@product).not_to be_valid
     end

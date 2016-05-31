@@ -1,4 +1,5 @@
 class Checkout
+
   def initialize
     @items = []
   end
@@ -18,4 +19,5 @@ class Checkout
       total += item.price
     end
   end
+  
 end
