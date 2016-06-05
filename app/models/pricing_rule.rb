@@ -1,7 +1,7 @@
 class PricingRule < ActiveRecord::Base
   attr_reader :items, :total
 
-  IPAD_PRICE_WITH_DISCOUNT = 499.99
+  IPAD_DISCOUNT = 50
 
   def initialize(items)
     @items = items
@@ -14,17 +14,34 @@ class PricingRule < ActiveRecord::Base
   private
 
   def discount
-    ipd_discount
-    vga_discount
+    # ipd_discount
+    # vga_discount
 
     if number_of_items_to_discount > 0
-      return total_amount - (items[0].price * number_of_items_to_discount)
+      return items[0].price * number_of_items_to_discount
     end
 
-    total_amount
+    @vga ||= @items.select { |item| item.sku == "vga" }
+    @mbp ||= @items.select { |item| item.sku == "mbp" }
+
+    if @mbp.size > 0 && @vga.size > 0
+      total_discount = 0
+      
+      @mbp.each_with_index do |mbp, i|
+        total_discount += @vga[i].price
+      end
+
+      return total_discount
+    end
+
+    if ipd_items.size > 4
+      return IPAD_DISCOUNT * ipd_items.size
+    end
+
+    0
   end
 
-  def total_amount
+  def total_amount_price_drop
     @items.inject(0) do |total, item|
       total += item.price
     end
@@ -38,25 +55,6 @@ class PricingRule < ActiveRecord::Base
     @ipd ||= @items.select { |item| item.sku == "ipd" }
   end
 
-  def vga_discount
-    @vga ||= @items.select { |item| item.sku == "vga" }
-    @mbp ||= @items.select { |item| item.sku == "mbp" }
-
-    if @mbp.size > 0 && @vga.size > 0
-      @mbp.each_with_index do |mbp, i|
-        @vga[i].price = 0
-      end
-    end
-  end
-
-  def ipd_discount
-    if ipd_items.size > 4
-      ipd_items.each do |ipd|
-        ipd.price = IPAD_PRICE_WITH_DISCOUNT
-      end
-    end
-  end
-
   def number_of_items_to_discount
     items = 0
 
@@ -68,4 +66,27 @@ class PricingRule < ActiveRecord::Base
 
     items
   end
+
+
+  # def vga_discount
+  #   @vga ||= @items.select { |item| item.sku == "vga" }
+  #   @mbp ||= @items.select { |item| item.sku == "mbp" }
+  #
+  #   if @mbp.size > 0 && @vga.size > 0
+  #     @mbp.each_with_index do |mbp, i|
+  #       @vga[i].price = 0
+  #     end
+  #   end
+  # end
+
+  # def ipd_discount
+  #   if ipd_items.size > 4
+  #     ipd_items.each do |ipd|
+  #       ipd.price = IPAD_PRICE_WITH_DISCOUNT
+  #     end
+  #   end
+  # end
+
+
+
 end

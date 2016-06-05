@@ -1,6 +1,7 @@
 class Checkout
 
-  def initialize
+  def initialize(promotional_rules)
+    @promotional_rules = promotional_rules
     @items = []
   end
 
@@ -9,7 +10,11 @@ class Checkout
   end
 
   def total
-    total_amount
+    total_amount - discount
+  end
+
+  def items
+    @items
   end
 
   private
@@ -19,5 +24,15 @@ class Checkout
       total += item.price
     end
   end
-  
+
+  def discount
+    discount = 0
+
+    promo = @promotional_rules.new(@items)
+    discount += promo.execute
+    @items = promo.items
+
+    discount
+  end
+
 end
